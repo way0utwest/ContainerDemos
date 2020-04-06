@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/mssql/server:2017-CU12-ubuntu as build
+ENV SA_PASSWORD=Demo12#4
+ENV ACCEPT_EULA=Y
+COPY SimpleTalk.bak /var/opt/mssql/data/SimpleTalk.bak
+COPY RestoreSimpleTalk.sql /var/opt/mssql/data/RestoreSimpleTalk.sql
+RUN /opt/mssql/bin/sqlservr --accept-eula & sleep 60 \
+    && /opt/mssql-tools/bin/sqlcmd -S . -U sa -P "Demo12#4" -i /var/opt/mssql/data/RestoreSimpleTalk.sql \
+    && pkill sqlservr
+RUN rm /var/opt/mssql/data/SimpleTalk.bak
+
+
+FROM mcr.microsoft.com/mssql/server:2017-CU12-ubuntu as dev
+
+ENV ACCEPT_EULA=Y
+
+COPY --from=build /var/opt/mssql/data /var/opt/mssql/data

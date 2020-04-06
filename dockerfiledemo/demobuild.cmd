@@ -1,0 +1,1 @@
+docker build --tag dbsimpletalk:0.6 .
